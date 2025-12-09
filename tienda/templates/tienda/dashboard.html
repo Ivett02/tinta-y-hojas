@@ -1,0 +1,373 @@
+{% extends 'tienda/base.html' %}
+
+{% block content %}
+<div style="display: flex; min-height: 80vh; gap: 20px; margin: 20px 0; align-items: flex-start;">
+
+    <aside style="width: 260px; background: #222; color: white; padding: 25px; border-radius: 8px; flex-shrink: 0; position: sticky; top: 100px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <h2 style="color: #D4AF37; text-align: center; font-size: 1.4rem; margin-bottom: 30px; border-bottom: 1px solid #444; padding-bottom: 15px;">
+            🛠️ Panel Admin
+        </h2>
+        
+        <nav style="display: flex; flex-direction: column; gap: 8px;">
+            <button onclick="mostrarSeccion('resumen')" class="menu-btn active">📊 Resumen</button>
+            <button onclick="mostrarSeccion('pedidos')" class="menu-btn">📦 Ventas / Pedidos</button>
+            <button onclick="mostrarSeccion('usuarios')" class="menu-btn">👥 Clientes</button>
+            <button onclick="mostrarSeccion('resenas')" class="menu-btn">💬 Reseñas</button>
+            <div style="height: 1px; background: #444; margin: 5px 0;"></div>
+            <button onclick="mostrarSeccion('inventario')" class="menu-btn">📚 Inventario (Libros)</button>
+            <button onclick="mostrarSeccion('autores')" class="menu-btn">✒️ Autores</button>
+            <button onclick="mostrarSeccion('colecciones')" class="menu-btn">🏷️ Colecciones</button>
+            <button onclick="mostrarSeccion('proveedores')" class="menu-btn">🚚 Proveedores</button>
+        </nav>
+        
+        <div style="margin-top: 40px; text-align: center;">
+            <a href="{% url 'index' %}" style="color: #888; text-decoration: none; font-size: 0.9rem;">← Volver a la Tienda</a>
+        </div>
+    </aside>
+
+    <div style="flex: 1; background: white; padding: 35px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #eee; min-height: 600px;">
+        
+        <div id="resumen" class="seccion-panel">
+            <h1 style="color: #800000; margin-top: 0;">Bienvenido, Administrador</h1>
+            <p style="color: #666;">Sistema de gestión Tinta y Hojas.</p>
+            <div style="display: flex; gap: 20px; margin-top: 30px; flex-wrap: wrap;">
+                <div class="stat-card"><h3>{{ pedidos|length }}</h3><p>Pedidos</p></div>
+                <div class="stat-card"><h3>{{ usuarios|length }}</h3><p>Clientes</p></div>
+                <div class="stat-card"><h3>{{ libros|length }}</h3><p>Libros</p></div>
+                <div class="stat-card"><h3>{{ resenas|length }}</h3><p>Reseñas</p></div>
+            </div>
+        </div>
+
+        <div id="pedidos" class="seccion-panel" style="display: none;">
+            <div class="panel-header">
+                <h2>Gestión de Pedidos</h2>
+                <a href="{% url 'crear_pedido_admin' %}" class="btn-action">+ Nuevo Pedido</a>
+            </div>
+            {% if pedidos %}
+            <div style="overflow-x: auto;">
+                <table class="admin-table">
+                    <thead><tr><th>ID</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead>
+                    <tbody>
+                        {% for pedido in pedidos %}
+                        <tr>
+                            <td>#{{ pedido.id }}</td>
+                            <td><strong>{{ pedido.usuario.username }}</strong><br><small>{{ pedido.fecha_pedido|date:"d/m H:i" }}</small></td>
+                            <td style="font-weight: bold;">${{ pedido.total_final }}</td>
+                            <td><span class="badge-status {{ pedido.estado }}">{{ pedido.get_estado_display }}</span></td>
+                            <td>
+                                <div style="display: flex; gap: 5px;">
+                                    <a href="{% url 'detalle_pedido_admin' pedido.id %}" class="btn-mini blue" title="Ver">👁️</a>
+                                    <a href="{% url 'editar_pedido_completo' pedido.id %}" class="btn-mini yellow" title="Editar">✏️</a>
+                                    <a href="{% url 'eliminar_pedido' pedido.id %}" class="btn-mini red" title="Borrar">🗑️</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}<p>No hay pedidos.</p>{% endif %}
+        </div>
+
+        <div id="usuarios" class="seccion-panel" style="display: none;">
+            <div class="panel-header">
+                <h2>Gestión de Clientes</h2>
+                <a href="{% url 'crear_usuario_admin' %}" class="btn-action">+ Nuevo Usuario</a>
+            </div>
+            {% if usuarios %}
+            <table class="admin-table">
+                <thead><tr><th>Usuario</th><th>Email</th><th>Fecha Registro</th><th>Acciones</th></tr></thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td><strong>{{ usuario.username }}</strong>{% if usuario.is_staff %} <span style="color:#D4AF37;">(Admin)</span>{% endif %}</td>
+                        <td>{{ usuario.email }}</td>
+                        <td>{{ usuario.date_joined|date:"d/m/Y" }}</td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <a href="{% url 'ver_perfil_usuario' usuario.id %}" class="btn-mini blue" title="Ver Perfil">👁️</a>
+                                <a href="{% url 'editar_usuario_admin' usuario.id %}" class="btn-mini yellow" title="Editar">✏️</a>
+                                <a href="{% url 'eliminar_usuario' usuario.id %}" class="btn-mini red" title="Borrar">🗑️</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}<p>No hay clientes.</p>{% endif %}
+        </div>
+
+        <div id="resenas" class="seccion-panel" style="display: none;">
+            <div class="panel-header">
+                <h2>Gestión de Reseñas</h2>
+                <a href="{% url 'crear_resena_admin' %}" class="btn-action">+ Nueva Reseña</a>
+            </div>
+
+            <form method="GET" style="background: #f1f1f1; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <input type="hidden" name="tab" value="resenas">
+
+                <strong style="color: #666;">Filtrar por:</strong>
+
+                <select name="filtro_libro" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                    <option value="">-- Todos los Libros --</option>
+                    {% for libro in libros %}
+                        <option value="{{ libro.id }}" {% if request.GET.filtro_libro == libro.id|stringformat:"i" %}selected{% endif %}>
+                            {{ libro.titulo }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <select name="filtro_autor" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                    <option value="">-- Todos los Autores --</option>
+                    {% for autor in autores %}
+                        <option value="{{ autor.id }}" {% if request.GET.filtro_autor == autor.id|stringformat:"i" %}selected{% endif %}>
+                            {{ autor.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <select name="filtro_coleccion" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                    <option value="">-- Todas las Colecciones --</option>
+                    {% for col in colecciones %}
+                        <option value="{{ col.id }}" {% if request.GET.filtro_coleccion == col.id|stringformat:"i" %}selected{% endif %}>
+                            {{ col.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit" class="btn-mini blue" style="padding: 8px 15px; font-size: 0.9rem;">🔍 Buscar</button>
+                
+                {% if request.GET.filtro_libro or request.GET.filtro_autor or request.GET.filtro_coleccion %}
+                    <a href="{% url 'dashboard_admin' %}?tab=resenas" class="btn-mini" style="background: #666; padding: 8px 15px; font-size: 0.9rem;">✖ Limpiar</a>
+                {% endif %}
+            </form>
+
+            {% if resenas %}
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Usuario</th>
+                        <th>Libro / Autor / Género</th>
+                        <th>Calif.</th>
+                        <th>Comentario</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for resena in resenas %}
+                    <tr>
+                        <td style="font-size: 0.85rem; color: #666;">{{ resena.fecha|date:"d/m/Y" }}</td>
+                        <td><strong>{{ resena.usuario.username }}</strong></td>
+                        <td>
+                            <strong>{{ resena.libro.titulo }}</strong><br>
+                            <small>{{ resena.libro.autor.nombre }} | {{ resena.libro.coleccion.nombre }}</small>
+                        </td>
+                        <td><span style="color: #D4AF37;">★ {{ resena.calificacion }}</span></td>
+                        <td style="font-style: italic; color: #555;">"{{ resena.comentario|truncatechars:40 }}"</td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <a href="{% url 'detalle_libro' resena.libro.id %}" class="btn-mini blue" title="Ver en Libro">👁️</a>
+                                <a href="{% url 'editar_resena_admin' resena.id %}" class="btn-mini yellow" title="Editar">✏️</a>
+                                <form action="{% url 'eliminar_resena' resena.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-mini red" onclick="return confirm('¿Borrar reseña inapropiada?')" title="Borrar">🗑️</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p style="text-align: right; color: #666; margin-top: 10px;">Mostrando {{ resenas.count }} resultados</p>
+            {% else %}
+                <div style="padding: 20px; text-align: center; background: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 4px;">
+                    No se encontraron reseñas con esos filtros.
+                </div>
+            {% endif %}
+        </div>
+
+        <div id="inventario" class="seccion-panel" style="display: none;">
+            <div class="panel-header">
+                <h2>Inventario de Libros</h2>
+                <a href="{% url 'crear_libro' %}" class="btn-action">+ Nuevo Libro</a>
+            </div>
+            {% if libros %}
+            <table class="admin-table">
+                <thead><tr><th>ID</th><th>Título</th><th>Stock</th><th>Acciones</th></tr></thead>
+                <tbody>
+                    {% for libro in libros %}
+                    <tr>
+                        <td style="color:#888;">#{{ libro.id }}</td>
+                        <td><strong>{{ libro.titulo }}</strong><br><small>{{ libro.autor }}</small></td>
+                        <td>
+                            {% if libro.stock > 5 %}<span style="color: green; font-weight: bold;">{{ libro.stock }}</span>
+                            {% elif libro.stock > 0 %}<span style="color: orange; font-weight: bold;">{{ libro.stock }} (Bajo)</span>
+                            {% else %}<span style="color: red; font-weight: bold;">Agotado</span>{% endif %}
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <a href="{% url 'detalle_libro' libro.id %}" class="btn-mini blue" title="Ver">👁️</a>
+                                <a href="{% url 'editar_libro' libro.id %}" class="btn-mini yellow" title="Editar">✏️</a>
+                                <a href="{% url 'eliminar_libro' libro.id %}" class="btn-mini red" title="Borrar">🗑️</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}<p>No hay libros.</p>{% endif %}
+        </div>
+
+        <div id="autores" class="seccion-panel" style="display: none;">
+            <div class="panel-header">
+                <h2>Gestión de Autores</h2>
+                <a href="{% url 'crear_autor' %}" class="btn-action">+ Nuevo Autor</a>
+            </div>
+            {% if autores %}
+            <table class="admin-table">
+                <thead><tr><th>Foto</th><th>Nombre</th><th>Libros</th><th>Acciones</th></tr></thead>
+                <tbody>
+                    {% for autor in autores %}
+                    <tr>
+                        <td style="text-align: center;"><div style="width: 35px; height: 35px; border-radius: 50%; overflow: hidden; margin: 0 auto; border: 1px solid #ccc;">{% if autor.foto %}<img src="{{ autor.foto.url }}" style="width: 100%; height: 100%; object-fit: cover;">{% else %}👤{% endif %}</div></td>
+                        <td><strong>{{ autor.nombre }}</strong></td>
+                        <td style="text-align: center;">{{ autor.libros.count }}</td>
+                        <td>
+                            <div style="display: flex; gap: 5px; justify-content: center;">
+                                <a href="{% url 'detalle_autor' autor.id %}" class="btn-mini blue" title="Ver">👁️</a>
+                                <a href="{% url 'editar_autor' autor.id %}" class="btn-mini yellow" title="Editar">✏️</a>
+                                <a href="{% url 'eliminar_autor' autor.id %}" class="btn-mini red" title="Borrar">🗑️</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}<p>No hay autores.</p>{% endif %}
+        </div>
+
+        <div id="colecciones" class="seccion-panel" style="display: none;">
+            <div class="panel-header">
+                <h2>Gestión de Colecciones</h2>
+                <a href="{% url 'crear_coleccion' %}" class="btn-action">+ Nueva Colección</a>
+            </div>
+            {% if colecciones %}
+            <table class="admin-table">
+                <thead><tr><th>Icono</th><th>Nombre</th><th>Color</th><th>Acciones</th></tr></thead>
+                <tbody>
+                    {% for col in colecciones %}
+                    <tr>
+                        <td style="font-size: 1.5rem; text-align: center;">{{ col.icono }}</td>
+                        <td><strong>{{ col.nombre }}</strong></td>
+                        <td><span style="display:inline-block; width: 20px; height: 20px; background-color: {{ col.color_fondo }}; border-radius: 50%; border: 1px solid #ccc; vertical-align: middle;"></span></td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <a href="{% url 'catalogo' %}?coleccion={{ col.id }}" class="btn-mini blue" title="Ver">👁️</a>
+                                <a href="{% url 'editar_coleccion' col.id %}" class="btn-mini yellow" title="Editar">✏️</a>
+                                <a href="{% url 'eliminar_coleccion' col.id %}" class="btn-mini red" title="Borrar">🗑️</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}<p>No hay colecciones.</p>{% endif %}
+        </div>
+        <div id="proveedores" class="seccion-panel" style="display: none;">
+            <div class="panel-header">
+                <h2>Gestión de Proveedores</h2>
+                <a href="{% url 'crear_proveedor' %}" class="btn-action">+ Nuevo Proveedor</a>
+            </div>
+            {% if proveedores %}
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Empresa</th>
+                        <th>Contacto</th>
+                        <th>Teléfono / Email</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prov in proveedores %}
+                    <tr>
+                        <td><strong>{{ prov.empresa }}</strong></td>
+                        <td>{{ prov.contacto }}</td>
+                        <td>
+                            {{ prov.telefono }}<br>
+                            <small style="color: #666;">{{ prov.email }}</small>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <a href="{% url 'editar_proveedor' prov.id %}" class="btn-mini yellow" title="Editar">✏️</a>
+                                <a href="{% url 'eliminar_proveedor' prov.id %}" class="btn-mini red" title="Borrar">🗑️</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p>No hay proveedores registrados.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function mostrarSeccion(id) {
+        
+        document.querySelectorAll('.seccion-panel').forEach(div => div.style.display = 'none');
+        
+        document.getElementById(id).style.display = 'block';
+        
+        document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+        
+        
+        
+        const btnActivo = document.querySelector(`button[onclick="mostrarSeccion('${id}')"]`);
+        if(btnActivo) btnActivo.classList.add('active');
+    }
+
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabActiva = urlParams.get('tab');
+
+        if (tabActiva) {
+            
+            mostrarSeccion(tabActiva);
+        } else {
+            
+            mostrarSeccion('resumen');
+        }
+    });
+</script>
+
+<style>
+    
+    .menu-btn { background: transparent; color: #ccc; border: none; padding: 12px 15px; text-align: left; cursor: pointer; font-size: 1rem; border-radius: 4px; transition: all 0.2s; width: 100%; display: block; }
+    .menu-btn:hover { background-color: #333; color: white; padding-left: 20px; }
+    .menu-btn.active { background-color: #D4AF37; color: #222; font-weight: bold; }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+    .panel-header h2 { color: #800000; margin: 0; }
+    .stat-card { background: #f8f8f8; padding: 20px; border-radius: 8px; flex: 1; min-width: 150px; text-align: center; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .stat-card h3 { font-size: 2.5rem; color: #800000; margin: 0; }
+    .stat-card p { color: #666; margin: 5px 0 0 0; }
+    .admin-table { width: 100%; border-collapse: collapse; }
+    .admin-table th { background-color: #333; color: white; padding: 12px; text-align: left; font-size: 0.9rem; }
+    .admin-table td { padding: 12px; border-bottom: 1px solid #eee; font-size: 0.95rem; }
+    .admin-table tr:hover { background-color: #f9f9f9; }
+    .btn-action { background-color: #28a745; color: white; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-size: 0.9rem; }
+    .btn-mini { padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 0.8rem; text-decoration: none; background-color: #666; display: flex; align-items: center; justify-content: center; height: 100%; min-width: 30px; }
+    .btn-mini.red { background-color: #dc3545; }
+    .btn-mini.yellow { background-color: #ffc107; color: #333; }
+    .btn-mini.blue { background-color: #17a2b8; }
+    .badge-status { padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
+    .badge-status.pendiente { background: #ffeeba; color: #856404; }
+    .badge-status.pagado { background: #d4edda; color: #155724; }
+    .badge-status.enviado { background: #cce5ff; color: #004085; }
+</style>
+{% endblock %}

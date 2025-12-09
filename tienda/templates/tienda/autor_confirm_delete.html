@@ -1,0 +1,13 @@
+{% extends 'tienda/base.html' %}
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 50px auto; text-align: center; border: 2px solid #d9534f;">
+    <h2 style="color: #d9534f;">⚠️ Borrar Autor</h2>
+    <p>Estás a punto de borrar a: <strong>{{ autor.nombre }}</strong></p>
+    <p style="background: #fff3cd; padding: 10px;">¡CUIDADO! Al borrar al autor, se borrarán también todos sus libros.</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn" style="background-color: #d9534f;">Sí, Eliminar</button>
+        <a href="{% url 'lista_autores' %}" class="btn" style="background-color: #666;">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

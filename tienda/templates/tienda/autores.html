@@ -1,0 +1,38 @@
+{% extends 'tienda/base.html' %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <h2 style="color: #800000; margin: 0;">Nuestros Autores</h2>
+    {% if user.is_staff %}
+        <a href="{% url 'crear_autor' %}" class="btn" style="background-color: #28a745;">+ Nuevo Autor</a>
+    {% endif %}
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 30px;">
+    {% for autor in autores %}
+    <div class="card" style="text-align: center; padding: 20px; transition: transform 0.3s;">
+        <a href="{% url 'detalle_autor' autor.id %}" style="text-decoration: none; color: inherit;">
+            <div style="width: 120px; height: 120px; margin: 0 auto 15px; border-radius: 50%; overflow: hidden; border: 3px solid #D4AF37;">
+                {% if autor.foto %}
+                    <img src="{{ autor.foto.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                    <div style="width: 100%; height: 100%; background: #ddd; display: flex; align-items: center; justify-content: center; font-size: 2rem;">✒️</div>
+                {% endif %}
+            </div>
+            
+            <h3 style="margin: 10px 0; color: #800000;">{{ autor.nombre }}</h3>
+            <p style="color: #666; font-size: 0.9rem;">{{ autor.libros.count }} Libros publicados</p>
+        </a>
+
+        {% if user.is_staff %}
+        <div style="margin-top: 15px; display: flex; justify-content: center; gap: 5px;">
+            <a href="{% url 'editar_autor' autor.id %}" class="btn" style="padding: 5px 10px; font-size: 0.8rem; background: #ffc107; color: black;">✏️</a>
+            <a href="{% url 'eliminar_autor' autor.id %}" class="btn" style="padding: 5px 10px; font-size: 0.8rem; background: #dc3545;" onclick="return confirm('¿Borrar autor?')">🗑️</a>
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <p>No hay autores registrados.</p>
+    {% endfor %}
+</div>
+{% endblock %}

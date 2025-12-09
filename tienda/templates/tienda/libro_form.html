@@ -1,0 +1,26 @@
+{% extends 'tienda/base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h2 style="color: #800000; text-align: center;">{{ titulo }}</h2>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        {% for field in form %}
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold; display: block;">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+            <small style="color: #666;">{{ field.help_text }}</small>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" class="btn" style="flex: 1;">Guardar Libro</button>
+            <a href="{% url 'catalogo' %}" class="btn" style="background-color: #666; text-align: center; flex: 1;">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

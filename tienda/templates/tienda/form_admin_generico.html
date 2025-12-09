@@ -1,0 +1,38 @@
+{% extends 'tienda/base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 40px auto; border-top: 5px solid #800000;">
+    <h2 style="color: #800000; text-align: center; margin-bottom: 20px;">{{ titulo }}</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        {% for field in form %}
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">{{ field.label }}</label>
+            <div style="width: 100%;">
+                {{ field }}
+            </div>
+            {% if field.help_text %}
+                <small style="color: #666;">{{ field.help_text }}</small>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="submit" class="btn" style="flex: 1;">Guardar Cambios</button>
+            <a href="{% url 'dashboard_admin' %}" class="btn" style="background-color: #666; width: 100px; text-align: center;">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    input[type="text"], input[type="email"], input[type="number"], select, textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+</style>
+{% endblock %}

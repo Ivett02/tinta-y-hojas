@@ -1,0 +1,11 @@
+{% extends 'tienda/base.html' %}
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h2 style="color: #800000; text-align: center;">{{ titulo }}</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn" style="width: 100%;">Guardar Autor</button>
+    </form>
+</div>
+{% endblock %}

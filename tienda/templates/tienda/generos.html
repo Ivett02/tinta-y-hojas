@@ -1,0 +1,20 @@
+{% extends 'tienda/base.html' %}
+{% block content %}
+<h1 style="text-align: center; color: #800000;">Nuestras Colecciones</h1>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px;">
+    {% for col in colecciones %}
+    <a href="{% url 'catalogo' %}?coleccion={{ col.id }}" class="card-genero" style="text-decoration: none; color: inherit;">
+        <div class="card" style="height: 100%; padding: 0; overflow: hidden;">
+            <div style="padding: 30px; text-align: center; color: white; background: {{ col.color_fondo }};">
+                <div style="font-size: 3rem;">{{ col.icono }}</div>
+                <h2 style="margin: 0; color: white;">{{ col.nombre }}</h2>
+            </div>
+            <div style="padding: 20px;">
+                <p>{{ col.descripcion }}</p>
+                <span class="btn" style="display: block; text-align: center; margin-top: 10px;">Ver Libros</span>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

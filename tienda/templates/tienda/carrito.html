@@ -1,0 +1,80 @@
+{% extends 'tienda/base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 900px; margin: 40px auto;">
+    <h1 style="color: #800000; font-family: 'Cinzel Decorative', cursive; text-align: center; margin-bottom: 30px;">
+        Tu Carrito de Compras
+    </h1>
+
+    {% if items %}
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead style="background-color: #333; color: white;">
+                <tr>
+                    <th style="padding: 15px; text-align: left;">Libro</th>
+                    <th style="padding: 15px; text-align: center;">Precio</th>
+                    <th style="padding: 15px; text-align: center;">Cantidad</th>
+                    <th style="padding: 15px; text-align: center;">Subtotal</th>
+                    <th style="padding: 15px; text-align: center;">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 15px;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            {% if item.libro.imagen %}
+                                <img src="{{ item.libro.imagen.url }}" style="width: 50px; height: 75px; object-fit: cover; border-radius: 4px;">
+                            {% else %}
+                                <div style="width: 50px; height: 75px; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">Sin img</div>
+                            {% endif %}
+                            <div>
+                                <strong>{{ item.libro.titulo }}</strong><br>
+                                <small style="color: #666;">{{ item.libro.autor.nombre }}</small>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td style="padding: 15px; text-align: center;">${{ item.libro.precio }}</td>
+
+                    <td style="padding: 15px; text-align: center;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                            <a href="{% url 'restar_cantidad' item.id %}" style="text-decoration: none; background: #ddd; width: 25px; height: 25px; border-radius: 50%; color: black; font-weight: bold; display: flex; align-items: center; justify-content: center;">-</a>
+                            
+                            <span style="font-weight: bold; font-size: 1.1rem;">{{ item.cantidad }}</span>
+                            
+                            <a href="{% url 'sumar_cantidad' item.id %}" style="text-decoration: none; background: #ddd; width: 25px; height: 25px; border-radius: 50%; color: black; font-weight: bold; display: flex; align-items: center; justify-content: center;">+</a>
+                        </div>
+                    </td>
+
+                    <td style="padding: 15px; text-align: center; font-weight: bold;">${{ item.subtotal }}</td>
+
+                    <td style="padding: 15px; text-align: center;">
+                        <a href="{% url 'eliminar_del_carrito' item.id %}" style="color: #dc3545; text-decoration: none; font-weight: bold; font-size: 0.9rem;" onclick="return confirm('¿Sacar este libro del carrito?')">
+                            ✕ Eliminar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div style="text-align: right; margin-top: 30px; border-top: 3px solid #D4AF37; padding-top: 20px;">
+            <p style="font-size: 1.2rem;">Total Estimado: <strong style="font-size: 1.5rem; color: #800000;">${{ carrito.total }}</strong></p>
+            <p style="color: #666; font-size: 0.9rem;">(Impuestos y envío calculados al pagar)</p>
+            
+            <div style="margin-top: 20px;">
+                <a href="{% url 'catalogo' %}" class="btn" style="background-color: transparent; color: #666; border: 1px solid #ccc; margin-right: 10px;">Seguir Comprando</a>
+                <a href="{% url 'procesar_pedido' %}" class="btn" style="padding: 12px 30px; font-size: 1.1rem;">Proceder al Pago →</a>
+            </div>
+        </div>
+
+    {% else %}
+        <div style="text-align: center; padding: 60px; background: #f9f9f9; border-radius: 8px;">
+            <div style="font-size: 4rem; margin-bottom: 20px;">🛒</div>
+            <h2 style="color: #666;">Tu carrito está vacío</h2>
+            <p style="margin-bottom: 30px;">Parece que aún no has agregado historias a tu colección.</p>
+            <a href="{% url 'catalogo' %}" class="btn">Ir al Catálogo</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

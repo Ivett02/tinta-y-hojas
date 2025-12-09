@@ -1,0 +1,27 @@
+{% extends 'tienda/base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 60px auto; text-align: center; border-top: 5px solid #dc3545; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+    
+    <div style="font-size: 3rem; margin-bottom: 10px;">⚠️</div>
+    
+    <h2 style="color: #dc3545; margin-bottom: 20px;">¿Eliminar Pedido #{{ pedido.id }}?</h2>
+    
+    <p style="color: #666; font-size: 1.1rem;">Estás a punto de borrar permanentemente este registro.</p>
+    
+    <div style="background: #fff5f5; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: left; border: 1px solid #ffcccc;">
+        <p style="margin: 5px 0;"><strong>Cliente:</strong> {{ pedido.usuario.username }}</p>
+        <p style="margin: 5px 0;"><strong>Fecha:</strong> {{ pedido.fecha_pedido|date:"d/m/Y" }}</p>
+        <p style="margin: 5px 0;"><strong>Total:</strong> ${{ pedido.total_final }}</p>
+        <p style="margin: 5px 0; color: #dc3545; font-weight: bold;">⚠ Esta acción no se puede deshacer.</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <a href="{% url 'dashboard_admin' %}" class="btn" style="background-color: #666; flex: 1;">Cancelar</a>
+            <button type="submit" class="btn" style="background-color: #dc3545; flex: 1;">Sí, Eliminar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

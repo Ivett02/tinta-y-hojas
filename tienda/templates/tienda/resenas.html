@@ -1,0 +1,156 @@
+{% extends 'tienda/base.html' %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    
+    <h1 style="text-align: center; color: #800000; margin-bottom: 10px;">Opiniones de la Comunidad</h1>
+    <p style="text-align: center; color: #666; margin-bottom: 40px;">Descubre lo que otros lectores piensan sobre nuestras historias.</p>
+
+    <div class="filter-card">
+        <form method="GET" class="filter-form">
+            
+            <div class="filter-group">
+                <label>📚 Libro:</label>
+                <select name="libro" onchange="this.form.submit()">
+                    <option value="">-- Todos --</option>
+                    {% for l in libros %}
+                        <option value="{{ l.id }}" {% if request.GET.libro == l.id|stringformat:"i" %}selected{% endif %}>
+                            {{ l.titulo }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>✒️ Autor:</label>
+                <select name="autor" onchange="this.form.submit()">
+                    <option value="">-- Todos --</option>
+                    {% for a in autores %}
+                        <option value="{{ a.id }}" {% if request.GET.autor == a.id|stringformat:"i" %}selected{% endif %}>
+                            {{ a.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>🏷️ Género:</label>
+                <select name="coleccion" onchange="this.form.submit()">
+                    <option value="">-- Todos --</option>
+                    {% for c in colecciones %}
+                        <option value="{{ c.id }}" {% if request.GET.coleccion == c.id|stringformat:"i" %}selected{% endif %}>
+                            {{ c.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {% if request.GET.libro or request.GET.autor or request.GET.coleccion %}
+                <a href="{% url 'resenas' %}" class="btn-clean">✖ Limpiar Filtros</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div style="margin-top: 30px;">
+        {% for resena in resenas %}
+        <div class="card" style="margin-bottom: 20px; border-left: 5px solid #D4AF37;">
+            <div style="display: flex; gap: 20px; align-items: flex-start;">
+                
+                <a href="{% url 'detalle_libro' resena.libro.id %}" style="flex-shrink: 0;">
+                    {% if resena.libro.imagen %}
+                        <img src="{{ resena.libro.imagen.url }}" style="width: 60px; height: 90px; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                    {% else %}
+                        <div style="width: 60px; height: 90px; background: #ddd; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">Sin img</div>
+                    {% endif %}
+                </a>
+                
+                <div style="flex: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <h3 style="margin: 0; color: #800000; font-size: 1.1rem;">
+                                {{ resena.libro.titulo }}
+                            </h3>
+                            <small style="color: #666;">
+                                por <span style="font-weight: bold;">{{ resena.usuario.username }}</span> 
+                                el {{ resena.fecha|date:"d de F, Y" }}
+                            </small>
+                        </div>
+                        <div style="color: #D4AF37; font-size: 1.1rem;">
+                            {% if resena.calificacion == 1 %}⭐
+                            {% elif resena.calificacion == 2 %}⭐⭐
+                            {% elif resena.calificacion == 3 %}⭐⭐⭐
+                            {% elif resena.calificacion == 4 %}⭐⭐⭐⭐
+                            {% else %}⭐⭐⭐⭐⭐{% endif %}
+                        </div>
+                    </div>
+                    
+                    <p style="font-style: italic; color: #444; margin-top: 10px; line-height: 1.5;">
+                        "{{ resena.comentario }}"
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <div style="text-align: center; padding: 40px; background: #f9f9f9; border-radius: 8px;">
+                <p style="font-size: 1.2rem; color: #888;">No se encontraron reseñas con estos filtros.</p>
+                <a href="{% url 'resenas' %}" class="btn" style="background-color: #666;">Ver todas las reseñas</a>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<style>
+    .filter-card {
+        background-color: #fdfdfd;
+        border: 1px solid #eaddcf;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .filter-form {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .filter-group label {
+        font-weight: bold;
+        color: #800000;
+    }
+
+    .filter-group select {
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        background-color: white;
+        font-family: 'Lato', sans-serif;
+        cursor: pointer;
+    }
+
+    .btn-clean {
+        text-decoration: none;
+        color: #666;
+        font-weight: bold;
+        font-size: 0.9rem;
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        transition: all 0.3s;
+    }
+    .btn-clean:hover {
+        background-color: #800000;
+        color: white;
+        border-color: #800000;
+    }
+</style>
+{% endblock %}

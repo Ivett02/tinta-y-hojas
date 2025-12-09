@@ -1,0 +1,44 @@
+{% extends 'tienda/base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h2 style="color: #800000; text-align: center;">Finalizar Compra</h2>
+    
+    <div style="background: #f9f9f9; padding: 20px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #ddd;">
+        <h3 style="margin-top: 0; color: #800000;">Resumen del Pedido</h3>
+        
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span>Subtotal:</span>
+            <span>${{ subtotal }}</span>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: #666;">
+            <span>Impuestos (16% IVA):</span>
+            <span>${{ impuestos|floatformat:2 }}</span>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; border-top: 2px solid #ccc; padding-top: 10px; font-size: 1.2rem; font-weight: bold;">
+            <span>Total a Pagar:</span>
+            <span>${{ total|floatformat:2 }}</span>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <label><strong>Dirección de Envío:</strong></label>
+        <textarea name="direccion" required style="width: 100%; height: 80px; margin-top: 5px; padding: 10px;" placeholder="Calle, Número, Colonia..."></textarea>
+        <br><br>
+
+        <label><strong>Método de Pago:</strong></label>
+        <select name="metodo_pago" style="width: 100%; padding: 10px; margin-top: 5px;">
+            <option value="tarjeta">Tarjeta de Crédito / Débito</option>
+            <option value="paypal">PayPal</option>
+            <option value="transferencia">Transferencia Bancaria</option>
+        </select>
+        <br><br>
+
+        <button type="submit" class="btn" style="width: 100%; font-size: 1.2rem;">Confirmar y Pagar</button>
+    </form>
+</div>
+{% endblock %}

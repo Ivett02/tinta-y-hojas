@@ -1,0 +1,183 @@
+{% extends 'tienda/base.html' %}
+
+{% block content %}
+
+<div class="card product-card">
+    <div class="product-layout">
+        
+        <div class="product-image-container">
+            {% if libro.imagen %}
+                <img src="{{ libro.imagen.url }}" alt="{{ libro.titulo }}" class="product-img">
+            {% else %}
+                <div class="no-image-placeholder">Sin Portada</div>
+            {% endif %}
+        </div>
+
+        <div class="product-info">
+            <h1 class="book-title">{{ libro.titulo }}</h1>
+            <h3 class="book-author">por <a href="{% url 'detalle_autor' libro.autor.id %}">{{ libro.autor.nombre }}</a></h3>
+            
+            <div class="book-meta">
+                <span class="badge-collection">{{ libro.coleccion.nombre }}</span>
+                {% if libro.proveedor %}
+                    <span class="badge-provider" title="Proveedor">🚚 {{ libro.proveedor.empresa }}</span>
+                {% endif %}
+            </div>
+
+            <p class="book-price">${{ libro.precio }}</p>
+            
+            <div class="book-stock">
+                {% if libro.stock > 5 %}
+                    <span style="color: #28a745;">✅ Disponible ({{ libro.stock }})</span>
+                {% elif libro.stock > 0 %}
+                    <span style="color: #ffc107;">⚠ Últimas unidades ({{ libro.stock }})</span>
+                {% else %}
+                    <span style="color: #dc3545;">❌ Agotado</span>
+                {% endif %}
+            </div>
+
+            <p class="book-description">{{ libro.descripcion }}</p>
+
+            <div class="action-buttons">
+                {% if libro.stock > 0 %}
+                    <a href="{% url 'agregar_al_carrito' libro.id %}" class="btn btn-add">
+                        🛒 Agregar al Carrito
+                    </a>
+                {% else %}
+                    <button class="btn btn-disabled" disabled>Agotado</button>
+                {% endif %}
+                <a href="{% url 'catalogo' %}" class="btn btn-secondary">Seguir Explorando</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="reviews-section">
+    <h3 class="reviews-title">Opiniones de Lectores</h3>
+
+    <div class="reviews-layout">
+        
+        <div class="review-form-container">
+            {% if puede_comentar %}
+                <div class="form-box">
+                    <h4>Escribe tu reseña</h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div style="margin-bottom: 10px;">
+                            <label>Calificación:</label>
+                            {{ form.calificacion }}
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            {{ form.comentario }}
+                        </div>
+                        <button type="submit" class="btn btn-small">Publicar</button>
+                    </form>
+                </div>
+            {% elif user.is_authenticated %}
+                {% if ya_comento %}
+                    <div class="alert-mini info">✅ Ya opinaste sobre este libro.</div>
+                {% else %}
+                    <div class="alert-mini warning">ℹ️ Compra este libro para poder opinar.</div>
+                {% endif %}
+            {% else %}
+                <div class="alert-mini info">
+                    <a href="{% url 'login' %}">Inicia sesión</a> para opinar.
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="reviews-list-container">
+            {% if resenas %}
+                <div class="scrollable-reviews">
+                    {% for resena in resenas %}
+                    <div class="review-item">
+                        <div class="review-header">
+                            <strong>{{ resena.usuario.username }}</strong>
+                            <span class="stars" data-score="{{ resena.calificacion }}">
+                                {% if resena.calificacion == 1 %}⭐
+                                {% elif resena.calificacion == 2 %}⭐⭐
+                                {% elif resena.calificacion == 3 %}⭐⭐⭐
+                                {% elif resena.calificacion == 4 %}⭐⭐⭐⭐
+                                {% else %}⭐⭐⭐⭐⭐{% endif %}
+                            </span>
+                        </div>
+                        <small class="review-date">{{ resena.fecha|date:"d M Y" }}</small>
+                        <p class="review-text">"{{ resena.comentario }}"</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-reviews">Aún no hay reseñas. ¡Sé el primero!</p>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<style>
+    
+    .product-card { border-top: 5px solid #800000; margin-bottom: 30px; }
+    .product-layout { display: flex; gap: 40px; flex-wrap: wrap; }
+    
+    .product-image-container { flex: 1; min-width: 250px; max-width: 350px; }
+    .product-img { width: 100%; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+    
+    .product-info { flex: 2; min-width: 300px; }
+    .book-title { font-size: 2.2rem; margin-bottom: 5px; color: #2c2c2c; }
+    .book-author { font-size: 1.1rem; color: #666; font-weight: normal; margin-bottom: 20px; }
+    .book-author a { color: #800000; text-decoration: none; }
+    
+    .book-price { font-size: 2rem; color: #800000; font-weight: bold; margin: 20px 0 10px 0; }
+    .book-description { line-height: 1.6; color: #444; margin-bottom: 30px; }
+    
+    .action-buttons { display: flex; gap: 15px; }
+    .btn-add { background-color: #28a745; border: none; font-size: 1rem; }
+    .btn-secondary { background-color: transparent; border: 2px solid #ccc; color: #666; }
+    .btn-disabled { background-color: #ccc; cursor: not-allowed; }
+
+    
+    .reviews-section { 
+        max-width: 900px; 
+        margin: 0 auto; 
+        border-top: 1px solid #eee;
+        padding-top: 30px;
+    }
+    .reviews-title { text-align: center; color: #800000; margin-bottom: 20px; font-family: 'Cinzel Decorative', cursive; }
+    
+    .reviews-layout { display: flex; gap: 30px; flex-wrap: wrap; }
+    
+    
+    .review-form-container { flex: 1; min-width: 250px; }
+    .form-box { background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eaddcf; }
+    .form-box h4 { margin-top: 0; color: #800000; }
+    .form-box textarea { width: 100%; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    
+    
+    .reviews-list-container { flex: 1.5; min-width: 300px; }
+    
+    .scrollable-reviews {
+        max-height: 300px; 
+        overflow-y: auto;  
+        padding-right: 10px; 
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 10px;
+        background: white;
+    }
+    
+    
+    .scrollable-reviews::-webkit-scrollbar { width: 6px; }
+    .scrollable-reviews::-webkit-scrollbar-thumb { background-color: #D4AF37; border-radius: 10px; }
+    .scrollable-reviews::-webkit-scrollbar-track { background: #f1f1f1; }
+
+    .review-item { border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+    .review-item:last-child { border-bottom: none; }
+    .review-header { display: flex; justify-content: space-between; align-items: center; }
+    .review-text { font-style: italic; color: #555; margin: 5px 0 0 0; font-size: 0.95rem; }
+    .review-date { font-size: 0.75rem; color: #999; }
+
+    .alert-mini { padding: 10px; border-radius: 4px; font-size: 0.9rem; text-align: center; }
+    .alert-mini.info { background: #e2e3e5; color: #383d41; }
+    .alert-mini.warning { background: #fff3cd; color: #856404; }
+</style>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'tienda/base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 50px auto; text-align: center; border: 2px solid #800000;">
+    <h2 style="color: #d9534f;">⚠️ ¿Estás seguro?</h2>
+    <p>Vas a eliminar el libro: <strong>"{{ libro.titulo }}"</strong></p>
+    <p>Esta acción no se puede deshacer.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn" style="background-color: #d9534f;">Sí, Eliminar Definitivamente</button>
+        <a href="{% url 'catalogo' %}" class="btn" style="background-color: #666;">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

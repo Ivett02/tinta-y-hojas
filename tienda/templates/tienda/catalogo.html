@@ -1,0 +1,168 @@
+{% extends 'tienda/base.html' %}
+
+{% block content %}
+
+<div style="max-width: 1200px; margin: 0 auto; padding-bottom: 20px; border-bottom: 1px solid #eee; margin-bottom: 30px;">
+    
+    {% if request.GET.recomendados %}
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h1 style="color: #D4AF37; font-family: 'Cinzel Decorative', cursive; font-size: 2.5rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
+                ★ Selección del Editor
+            </h1>
+            <p style="color: #666; font-size: 1.1rem;">
+                {% if request.GET.coleccion %}
+                    Mostrando solo las joyas de esta colección.
+                {% else %}
+                    Nuestros libros favoritos y joyas ocultas que no te puedes perder.
+                {% endif %}
+            </p>
+            <a href="{% url 'catalogo' %}" style="color: #800000; text-decoration: underline;">← Ver catálogo completo sin filtros</a>
+        </div>
+
+    {% elif request.GET.coleccion %}
+        {% for col in colecciones %}
+            {% if request.GET.coleccion == col.id|stringformat:"i" %}
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 3rem;">{{ col.icono }}</div>
+                    <h1 style="color: #800000; font-family: 'Cinzel Decorative', cursive; margin: 5px 0;">
+                        Colección {{ col.nombre }}
+                    </h1>
+                    <p style="color: #666;">{{ col.descripcion }}</p>
+                    <a href="{% url 'catalogo' %}" style="color: #800000; text-decoration: underline;">← Volver a ver todo</a>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+    {% else %}
+        <h1 style="color: #800000; font-family: 'Cinzel Decorative', cursive;">Catálogo Completo</h1>
+    {% endif %}
+    
+    <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; margin-top: 20px;">
+        <strong style="color: #666;">Filtrar por:</strong>
+        
+        <a href="{% url 'catalogo' %}{% if request.GET.recomendados %}?recomendados=true{% endif %}" 
+           class="btn-filter {% if not request.GET.coleccion %}active{% endif %}">
+            Todos
+        </a>
+        
+        {% for col in colecciones %}
+            <a href="{% url 'catalogo' %}?coleccion={{ col.id }}{% if request.GET.recomendados %}&recomendados=true{% endif %}" 
+               class="btn-filter {% if request.GET.coleccion == col.id|stringformat:'i' %}active{% endif %}">
+                {{ col.icono }} {{ col.nombre }}
+            </a>
+        {% endfor %}
+        
+        <a href="{% url 'catalogo' %}?recomendados=true" 
+           class="btn-filter {% if request.GET.recomendados %}active-gold{% endif %}" 
+           style="border-color: #D4AF37; color: #b08d1a;">
+            ★ Recomendados
+        </a>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px;">
+    
+    {% for libro in libros %}
+    <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; transition: transform 0.3s; padding: 0; overflow: hidden;">
+        
+        <a href="{% url 'detalle_libro' libro.id %}" style="text-decoration: none; color: inherit; display: block; flex-grow: 1;">
+            
+            <div style="width: 100%; height: 350px; overflow: hidden; position: relative;">
+                {% if libro.imagen %}
+                    <img src="{{ libro.imagen.url }}" alt="{{ libro.titulo }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s;">
+                {% else %}
+                    <div style="width: 100%; height: 100%; background: #f4f4f4; display: flex; align-items: center; justify-content: center; color: #999;">
+                        Sin Portada
+                    </div>
+                {% endif %}
+                
+                <div style="position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 5px; align-items: flex-end;">
+                    {% if libro.stock == 0 %}
+                        <span style="background: #dc3545; color: white; padding: 4px 8px; font-weight: bold; border-radius: 4px; font-size: 0.7rem;">AGOTADO</span>
+                    {% endif %}
+                    {% if libro.es_recomendado %}
+                        <span style="background: #D4AF37; color: black; padding: 4px 8px; font-weight: bold; border-radius: 4px; font-size: 0.7rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">★ RECOMENDADO</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div style="padding: 15px;">
+                <small style="color: #888; text-transform: uppercase; font-size: 0.75rem;">{{ libro.coleccion.nombre }}</small>
+                <h3 style="margin: 5px 0; font-size: 1.2rem; color: #800000; line-height: 1.3;">{{ libro.titulo }}</h3>
+                <p style="font-style: italic; margin: 0 0 10px 0; color: #666; font-size: 0.95rem;">{{ libro.autor.nombre }}</p>
+                <p style="font-weight: bold; font-size: 1.3rem; color: #2c2c2c; margin: 10px 0;">${{ libro.precio }}</p>
+            </div>
+        </a>
+
+        <div style="padding: 15px; border-top: 1px solid #eee; background: #fafafa;">
+            
+            {% if user.is_staff %}
+            <div style="display: flex; gap: 5px; margin-bottom: 10px; justify-content: center;">
+                <a href="{% url 'editar_libro' libro.id %}" style="font-size: 0.8rem; background: #ffc107; padding: 4px 8px; border-radius: 4px; text-decoration: none; color: black;">✏️ Editar</a>
+                <a href="{% url 'eliminar_libro' libro.id %}" style="font-size: 0.8rem; background: #dc3545; padding: 4px 8px; border-radius: 4px; text-decoration: none; color: white;">🗑️ Borrar</a>
+            </div>
+            {% endif %}
+
+            {% if libro.stock > 0 %}
+                <a href="{% url 'agregar_al_carrito' libro.id %}" class="btn" style="width: 100%; box-sizing: border-box; display: block; text-align: center;">
+                    Añadir al Carrito
+                </a>
+            {% else %}
+                <button class="btn" style="width: 100%; background-color: #ccc; cursor: not-allowed;" disabled>
+                    Sin Stock
+                </button>
+            {% endif %}
+        </div>
+
+    </div>
+    {% empty %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 60px; background: #f9f9f9; border-radius: 8px;">
+            <p style="font-size: 2rem; margin-bottom: 10px;">📚</p>
+            <p style="font-size: 1.2rem; color: #666;">
+                {% if request.GET.recomendados %}
+                    No hay libros recomendados en esta categoría... aún.
+                {% else %}
+                    No encontramos libros con esos criterios.
+                {% endif %}
+            </p>
+            <a href="{% url 'catalogo' %}" class="btn" style="background-color: #666; margin-top: 10px;">Ver todo el catálogo</a>
+        </div>
+    {% endfor %}
+
+</div>
+
+<style>
+    .btn-filter {
+        text-decoration: none;
+        color: #555;
+        padding: 6px 15px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+    }
+    .btn-filter:hover {
+        background-color: #f0f0f0;
+        border-color: #ccc;
+    }
+    
+    .btn-filter.active {
+        background-color: #800000;
+        color: white;
+        border-color: #800000;
+    }
+    
+    .btn-filter.active-gold {
+        background-color: #D4AF37;
+        color: black;
+        border-color: #D4AF37;
+        font-weight: bold;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+    }
+</style>
+
+{% endblock %}

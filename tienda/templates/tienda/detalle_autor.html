@@ -1,0 +1,46 @@
+{% extends 'tienda/base.html' %}
+
+{% block content %}
+<div class="card" style="background: linear-gradient(to right, #800000, #5a0000); color: white; border: none;">
+    <div style="display: flex; align-items: center; gap: 30px; flex-wrap: wrap;">
+        <div style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; border: 4px solid #D4AF37; flex-shrink: 0;">
+            {% if autor.foto %}
+                <img src="{{ autor.foto.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+            {% else %}
+                <div style="width: 100%; height: 100%; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #555;">✒️</div>
+            {% endif %}
+        </div>
+        
+        <div style="flex: 1;">
+            <h1 style="margin: 0; font-size: 2.5rem; color: white;">{{ autor.nombre }}</h1>
+            <p style="margin-top: 10px; font-size: 1.1rem; opacity: 0.9; line-height: 1.6;">{{ autor.biografia|default:"Sin biografía disponible." }}</p>
+        </div>
+    </div>
+</div>
+
+<h2 style="margin-top: 40px; border-bottom: 2px solid #800000; padding-bottom: 10px;">Libros de {{ autor.nombre }}</h2>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
+    {% for libro in libros %}
+    <div class="card" style="text-align: center; padding: 15px;">
+        <a href="{% url 'detalle_libro' libro.id %}" style="text-decoration: none; color: inherit;">
+            <div style="height: 250px; overflow: hidden; border-radius: 4px; margin-bottom: 10px;">
+                {% if libro.imagen %}
+                    <img src="{{ libro.imagen.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                    <div style="width: 100%; height: 100%; background: #ddd; display: flex; align-items: center; justify-content: center;">Sin img</div>
+                {% endif %}
+            </div>
+            <h4 style="margin: 5px 0; color: #800000;">{{ libro.titulo }}</h4>
+            <p style="font-weight: bold;">${{ libro.precio }}</p>
+        </a>
+    </div>
+    {% empty %}
+    <p>Este autor aún no tiene libros en nuestro catálogo.</p>
+    {% endfor %}
+</div>
+
+<div style="margin-top: 30px;">
+    <a href="{% url 'lista_autores' %}" class="btn" style="background-color: #666;">← Volver a Autores</a>
+</div>
+{% endblock %}

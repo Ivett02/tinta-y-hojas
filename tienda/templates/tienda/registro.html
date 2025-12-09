@@ -1,0 +1,71 @@
+{% extends 'tienda/base.html' %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+    
+    <div class="card" style="width: 100%; max-width: 450px; padding: 40px; border-top: 5px solid #800000;">
+        <h2 style="text-align: center; color: #800000; margin-bottom: 20px;">Crear Cuenta</h2>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">Únete a Tinta y Hojas para comprar libros y dejar reseñas.</p>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            {% for field in form %}
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: bold; color: #333; display: block; margin-bottom: 5px;">
+                    {{ field.label }}
+                </label>
+                
+                <div class="input-group">
+                    {{ field }}
+                </div>
+
+                {% if field.errors %}
+                    <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                        {% for error in field.errors %}
+                            • {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                {% if field.help_text and not field.errors %}
+                    <small style="color: #888; font-size: 0.8rem;">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn" style="width: 100%; padding: 12px; font-size: 1.1rem; margin-top: 10px;">
+                Registrarse
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+            ¿Ya tienes cuenta? <a href="{% url 'login' %}" style="color: #800000; font-weight: bold;">Inicia Sesión aquí</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Hacemos que los inputs de Django ocupen todo el ancho y se vean modernos */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box; /* Para que el padding no rompa el ancho */
+        font-family: 'Lora', serif;
+        font-size: 1rem;
+    }
+
+    input:focus {
+        border-color: #800000;
+        outline: none;
+        box-shadow: 0 0 5px rgba(128, 0, 0, 0.2);
+    }
+    
+    
+    ul { list-style: none; padding: 0; margin: 0; }
+</style>
+{% endblock %}

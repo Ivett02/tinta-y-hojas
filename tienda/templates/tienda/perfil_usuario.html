@@ -1,0 +1,55 @@
+{% extends 'tienda/base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 20px auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #800000; padding-bottom: 10px;">
+        <h2 style="color: #800000; margin: 0;">👤 Perfil del Cliente</h2>
+        <a href="{% url 'dashboard_admin' %}" class="btn" style="background-color: #666;">← Volver al Panel</a>
+    </div>
+
+    <div style="margin-top: 20px; background: #f9f9f9; padding: 20px; border-radius: 8px;">
+        <p><strong>Usuario:</strong> {{ usuario_ver.username }}</p>
+        <p><strong>Email:</strong> {{ usuario_ver.email }}</p>
+        <p><strong>Usuario:</strong> {{ usuario_ver.username }}</p>
+        <p><strong>Email:</strong> {{ usuario_ver.email }}</p>
+        <p><strong>Teléfono:</strong> {{ usuario_ver.perfil.telefono|default:"No registrado" }}</p>
+        <p><strong>Dirección:</strong> {{ usuario_ver.perfil.direccion|default:"No registrada" }}</p>
+        <p><strong>Miembro desde:</strong> {{ usuario_ver.date_joined|date:"d F Y" }}</p>
+        <p><strong>Último acceso:</strong> {{ usuario_ver.last_login|date:"d F Y H:i" }}</p>
+    </div>
+
+    <h3 style="margin-top: 30px; color: #800000;">📜 Historial de Compras</h3>
+    {% if pedidos_usuario %}
+    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+        <thead style="background-color: #333; color: white;">
+            <tr>
+                <th style="padding: 10px;">Pedido ID</th>
+                <th style="padding: 10px;">Fecha</th>
+                <th style="padding: 10px;">Total</th>
+                <th style="padding: 10px;">Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pedido in pedidos_usuario %}
+            <tr style="border-bottom: 1px solid #ccc;">
+                <td style="padding: 10px;">#{{ pedido.id }}</td>
+                <td style="padding: 10px;">{{ pedido.fecha_pedido|date:"d/m/Y" }}</td>
+                <td style="padding: 10px;">${{ pedido.total_final }}</td>
+                <td style="padding: 10px;">{{ pedido.get_estado_display }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>Este usuario no ha realizado compras todavía.</p>
+    {% endif %}
+
+    <div style="margin-top: 30px; text-align: right;">
+        <a href="{% url 'eliminar_usuario' usuario_ver.id %}" 
+           class="btn" style="background-color: #dc3545;"
+           onclick="return confirm('¡CUIDADO! ¿Borrar este usuario permanentemente?')">
+           🗑️ Eliminar Usuario del Sistema
+        </a>
+    </div>
+</div>
+{% endblock %}
